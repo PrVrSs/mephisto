@@ -10,14 +10,6 @@ class FuzzerInput:
         return 1
 
 
-class CovAnalytic:
-    def __init__(self):
-        self._total_coverage: int = 0
-
-    def __repr__(self) -> str:
-        return ''
-
-
 class Corpus:
     def __init__(self):
         self._data_generator = FuzzerInput()
@@ -44,20 +36,33 @@ class Corpus:
             c = self._generate_input()
 
 
+class CovAnalytic:
+    def __init__(self, branches):
+        self._total_coverage: int = 0
+        self._branches = set(branches)
+
+    def add_cov(self, cov):
+        miss = self._branches - set(list(cov.values())[0])
+
+    def calculate(self):
+        pass
+
+    def __repr__(self) -> str:
+        return ''
+
+
 class Native:
 
-    def __init__(self):
+    def __init__(self, target):
         self._corpus = Corpus().feedback()
+        self._cov_analytic = CovAnalytic(CFG().create(target).as_line())
+        self._target = target
 
-    def fuzz_one(self, data):
-        NotImplementedError()
+    def start(self):
+        for i in range(1):
+            worker_result = worker(0, __callback__=self._target)
 
-    def start(self, function):
-        cfg = CFG().create(function)
-        worker_result = worker(0, __callback__=function)
-
-        print(list(cfg.as_line()))
-        print(worker_result.trace_data)
+            self._cov_analytic.add_cov(worker_result.trace_data)
 
 
 def main():
@@ -68,9 +73,9 @@ def main():
         else:
             a = 3
 
-        return 3
+        return a
 
-    Native().start(simple)
+    Native(simple).start()
 
 
 if __name__ == '__main__':

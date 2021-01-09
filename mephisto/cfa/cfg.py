@@ -7,12 +7,14 @@ from more_itertools import first, first_true, last, pairwise
 
 class Function:
     def __init__(self):
-        self._blocks = []
+        self._blocks = [Block()]
 
     def new_block(self):
-        self._blocks.append(block := Block())
+        self._blocks.append(Block())
 
-        return block
+    @property
+    def current_block(self):
+        return last(self._blocks)
 
     def find_by_offset(self, offsets):
         return [
@@ -60,9 +62,6 @@ class Block:
 
 class CFG:
     def __init__(self):
-        self._function = Function()
-        self._current_block = self._function.new_block()
-
         self._handlers = {
             'POP_JUMP_IF_FALSE': self._jump_if,
             'JUMP_FORWARD': self._jump_forward,
@@ -75,19 +74,21 @@ class CFG:
         return [inst.argval]
 
     def create(self, code) -> Function:
+        function = Function()
+
         for i, ins in enumerate(dis.get_instructions(code)):
             if ins.is_jump_target:
-                self._current_block = self._function.new_block()
+                function.new_block()
 
-            self._current_block.add_instr(ins)
+            function.current_block.add_instr(ins)
 
             if jump_offset := self._handlers.get(ins.opname, lambda _: None)(ins):
-                self._current_block.jump_offsets = jump_offset
+                function.current_block.jump_offsets = jump_offset
 
             if ins.opname == 'POP_JUMP_IF_FALSE':
-                self._current_block = self._function.new_block()
+                function.new_block()
 
-        return self._function
+        return function
 
 
 def test(a, b):

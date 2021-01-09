@@ -16,3 +16,9 @@ def visualize(edges: List[Tuple[int, int]]) -> None:
     graph.add_edges_from(edges)
     networkx.draw_networkx(graph, **options)
     pyplot.show()
+
+
+# def visualize(edges: List[Tuple[int, int]]) -> None:
+#     from graphviz import Digraph
+#     dot = Digraph(comment='The Round Table')
+#     dot.edges(edges)
