@@ -1,5 +1,11 @@
+import logging
+
 from mephisto.cfa import CFG
 from mephisto.worker import worker
+from mephisto.logger import configure_logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class FuzzerInput:
@@ -47,9 +53,6 @@ class CovAnalytic:
     def calculate(self):
         pass
 
-    def __repr__(self) -> str:
-        return ''
-
 
 class Native:
 
@@ -59,17 +62,20 @@ class Native:
         self._target = target
 
     def start(self):
-        for i in range(1):
-            worker_result = worker(0, __callback__=self._target)
+        for i in range(2):
+            worker_result = worker(i, __callback__=self._target)
+
+            logger.debug(str(worker_result))
 
             self._cov_analytic.add_cov(worker_result.trace_data)
 
 
 def main():
+    configure_logging('debug')
 
     def simple(data):
-        if data == 2:
-            a = 7
+        if data == 1:
+            a = 7 / 0
         else:
             a = 3
 
