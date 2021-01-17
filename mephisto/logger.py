@@ -37,7 +37,7 @@ LOGGING_CONFIG = {
     },
     'loggers': {
         '': {'handlers': ['default'], 'level': 'ERROR'},
-        'matte.error': {'level': 'INFO'},
+        'mephisto.error': {'level': 'INFO'},
     },
 }
 
